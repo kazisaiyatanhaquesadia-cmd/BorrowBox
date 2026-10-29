@@ -132,6 +132,17 @@
             text-align: center;
             border: 1px solid #e5ebe7;
             border-radius: 10px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.2s ease;
+        }
+
+        .category:hover, .category.active-cat {
+            border-color: #27845a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 132, 90, 0.15);
+            background: #f0f8f3;
         }
 
         .category .icon {
@@ -142,6 +153,7 @@
         .category p {
             font-size: 14px;
             margin: 0;
+            font-weight: 500;
         }
 
         .items {
@@ -273,9 +285,24 @@
             <a href="{{ route('items.create') }}" class="add-item">
                 + Add Item
             </a>
-            <a href="{{ url('/login') }}">Login</a>
+            @auth
+                <span style="font-size: 14px; color: #27845a; font-weight: bold;"> {{ auth()->user()->name }}</span>
+                <form action="{{ route('logout') }}" method="POST" style="display:inline; margin: 0;">
+                    @csrf
+                    <button type="submit" style="background:none; border:none; color:#c62828; padding:0; font-size:14px; cursor:pointer; font-weight:bold;">Logout</button>
+                </form>
+            @else
+                <a href="{{ url('/login') }}">Login</a>
+                <a href="{{ url('/register') }}">Register</a>
+            @endauth
         </nav>
     </header>
+
+    @if (session('success'))
+        <div style="max-width: 600px; margin: 20px auto -20px; background: #e7f8ed; color: #176b37; padding: 12px 20px; border-radius: 8px; text-align: center; font-size: 14px;">
+            {{ session('success') }}
+        </div>
+    @endif
 
     <section class="hero">
         <h1>Borrow More. <span>Spend Less.</span></h1>
@@ -300,45 +327,45 @@
         <h2>Explore Categories</h2>
 
         <div class="categories">
-            <div class="category">
+            <a href="{{ url('/?category=Books') }}" class="category {{ request('category') === 'Books' ? 'active-cat' : '' }}">
                 <div class="icon">📚</div>
                 <p>Books</p>
-            </div>
+            </a>
 
-            <div class="category">
+            <a href="{{ url('/?category=Calculators') }}" class="category {{ request('category') === 'Calculators' ? 'active-cat' : '' }}">
                 <div class="icon">🧮</div>
                 <p>Calculators</p>
-            </div>
+            </a>
 
-            <div class="category">
+            <a href="{{ url('/?category=Electronics') }}" class="category {{ request('category') === 'Electronics' ? 'active-cat' : '' }}">
                 <div class="icon">💻</div>
                 <p>Electronics</p>
-            </div>
+            </a>
 
-            <div class="category">
+            <a href="{{ url('/?category=Study Notes') }}" class="category {{ request('category') === 'Study Notes' ? 'active-cat' : '' }}">
                 <div class="icon">📝</div>
                 <p>Study Notes</p>
-            </div>
+            </a>
 
-            <div class="category">
+            <a href="{{ url('/?category=Lab Equipment') }}" class="category {{ request('category') === 'Lab Equipment' ? 'active-cat' : '' }}">
                 <div class="icon">🔬</div>
                 <p>Lab Equipment</p>
-            </div>
+            </a>
 
-            <div class="category">
+            <a href="{{ url('/?category=Sports Items') }}" class="category {{ request('category') === 'Sports Items' ? 'active-cat' : '' }}">
                 <div class="icon">⚽</div>
                 <p>Sports Items</p>
-            </div>
+            </a>
 
-            <div class="category">
+            <a href="{{ url('/?category=Stationery') }}" class="category {{ request('category') === 'Stationery' ? 'active-cat' : '' }}">
                 <div class="icon">✏️</div>
                 <p>Stationery</p>
-            </div>
+            </a>
 
-            <div class="category">
+            <a href="{{ url('/?category=Other') }}" class="category {{ request('category') === 'Other' ? 'active-cat' : '' }}">
                 <div class="icon">🎒</div>
                 <p>Other Items</p>
-            </div>
+            </a>
         </div>
     </section>
 
@@ -346,16 +373,27 @@
 
         <h2>
             @if (request()->filled('search'))
-                Search Results
+                Search Results for "{{ request('search') }}"
+            @elseif (request()->filled('category'))
+                Category: {{ request('category') }}
             @else
                 Recently Shared Items
             @endif
         </h2>
 
-        <p class="debug-info">
-            Search keyword: "{{ request('search', '') }}"
-            | Results found: {{ $items->count() }}
-        </p>
+        @if (request()->filled('search') || request()->filled('category'))
+            <p class="debug-info">
+                @if (request()->filled('search')) Keyword: "{{ request('search') }}" @endif
+                @if (request()->filled('category')) Category: "{{ request('category') }}" @endif
+                | Results found: {{ $items->count() }}
+                &nbsp;·&nbsp;
+                <a href="{{ url('/') }}" style="color: #27845a; font-weight: bold; text-decoration: underline;">Clear Filter</a>
+            </p>
+        @else
+            <p class="debug-info">
+                Total available items: {{ $items->count() }}
+            </p>
+        @endif
 
         <div class="items">
 
@@ -364,11 +402,20 @@
                 <div class="item">
 
                     <div class="item-image">
-                        @if (strtolower($item->category) === 'books')
+                        @php $cat = strtolower($item->category); @endphp
+                        @if (str_contains($cat, 'book'))
                             📚
-                        @elseif (strtolower($item->category) === 'electronics')
+                        @elseif (str_contains($cat, 'calc'))
+                            🧮
+                        @elseif (str_contains($cat, 'electr'))
                             💻
-                        @elseif (strtolower($item->category) === 'stationery')
+                        @elseif (str_contains($cat, 'note') || str_contains($cat, 'study'))
+                            📝
+                        @elseif (str_contains($cat, 'lab'))
+                            🔬
+                        @elseif (str_contains($cat, 'sport'))
+                            ⚽
+                        @elseif (str_contains($cat, 'station'))
                             ✏️
                         @else
                             🎒

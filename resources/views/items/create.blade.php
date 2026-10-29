@@ -223,10 +223,14 @@
         <label for="category">Category</label>
         <select id="category" name="category" required>
             <option value="">Select a category</option>
-            <option value="Books" {{ old('category') == 'Books' ? 'selected' : '' }}>Books</option>
-            <option value="Electronics" {{ old('category') == 'Electronics' ? 'selected' : '' }}>Electronics</option>
-            <option value="Stationery" {{ old('category') == 'Stationery' ? 'selected' : '' }}>Stationery</option>
-            <option value="Other" {{ old('category') == 'Other' ? 'selected' : '' }}>Other</option>
+            <option value="Books" {{ old('category') == 'Books' ? 'selected' : '' }}>📚 Books</option>
+            <option value="Calculators" {{ old('category') == 'Calculators' ? 'selected' : '' }}>🧮 Calculators</option>
+            <option value="Electronics" {{ old('category') == 'Electronics' ? 'selected' : '' }}>💻 Electronics</option>
+            <option value="Study Notes" {{ old('category') == 'Study Notes' ? 'selected' : '' }}>📝 Study Notes</option>
+            <option value="Lab Equipment" {{ old('category') == 'Lab Equipment' ? 'selected' : '' }}>🔬 Lab Equipment</option>
+            <option value="Sports Items" {{ old('category') == 'Sports Items' ? 'selected' : '' }}>⚽ Sports Items</option>
+            <option value="Stationery" {{ old('category') == 'Stationery' ? 'selected' : '' }}>✏️ Stationery</option>
+            <option value="Other" {{ old('category') == 'Other' ? 'selected' : '' }}>🎒 Other</option>
         </select>
         @error('category')
             <div class="error">{{ $message }}</div>
@@ -245,7 +249,7 @@
             type="text"
             id="owner_name"
             name="owner_name"
-            value="{{ old('owner_name') }}"
+            value="{{ old('owner_name', auth()->user()?->name ?? '') }}"
             placeholder="Enter your name"
             required
         >

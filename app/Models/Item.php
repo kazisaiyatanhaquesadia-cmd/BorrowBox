@@ -22,4 +22,12 @@ class Item extends Model
         'is_available' => 'boolean',
         'reward_coins' => 'integer',
     ];
+
+    /**
+     * Get the user who listed this item.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
